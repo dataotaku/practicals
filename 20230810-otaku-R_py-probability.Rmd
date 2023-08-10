@@ -1,0 +1,79 @@
+---
+title: "R과 Python을 활용한 확률분포 학습"
+author: |
+  | 장운호
+  | unho.chang@gmail.com
+date: "`r Sys.Date()`"
+output:
+  beamer_presentation:
+    theme: "AnnArbor"
+    colortheme: "dolphin"
+    keep_tex: no
+  slidy_presentation: default
+header-includes:
+  - \usepackage{kotex}
+---
+
+```{r rsetup, echo=FALSE, message=FALSE, warning=FALSE}
+library(knitr)
+opts_chunk$set(collapse=TRUE, fig.align='center', tidy=TRUE, tidy.opts=list(blank=TRUE, width.cutoff=40, strip.white=TRUE), warning=FALSE,message=FALSE,cache=TRUE)
+# echo=TRUE, collapse=TRUE,
+# fig.height=2.2,fig.width=2.8, 
+# fig.cap="이미지 캡션 넣기", 
+# tidy.opts=list(width.cutoff=90),
+# eval=T
+```
+
+# 파이썬 확률분포 
+
+## 1. 사이파이의 확률분포 클래스
+사이파이 패키지를 적절히 임포트한 후, 가장 먼저 해당 확률분포에 대한 확률분포 클래스 객체를 생성한 후에 메서드를 활용해야 함.
+
+\scriptsize
+```{python, message=FALSE, collapse=TRUE, tidy=TRUE,tidy.opts=list(width.cutoff=100),eval=T}
+import scipy as sp
+import scipy.stats
+```
+
+- 이산 : 베르누이 분포  (bernoulli)
+- 이산 : 이항 분포      (binom)
+- 이산 : 다항 분포      (multinomial)
+- 연속 : 균일 분포      (uniform)
+- 연속 : 정규 분포      (norm)
+- 연속 : 베타 분포      (beta)
+- 연속 : 감마 분포      (gamma)
+- 연속 : 스튜던트 t분포 (t)
+- 연속 : 카이제곱 분포  (chi2)
+- 연속 : F분포          (f) 
+- 연속 : 디리클레 분포  (dirichlet)
+- 연속 : 다변수 정규분포(multivariate_normal)
+
+
+## 2. 파이썬 확률분포객체가 가지는 공통 메서드
+입력하는 파라미터는 확률분포 객체의 종류와 활용하는 메서드에 따라 달라질 수 있음.
+
+가장 기본이 되는 파라미터는 loc(기대값)과 scale(평균)임.
+
+- pmf : 확률 질량 함수 
+- pdf : 확률 밀도 함수
+- cdf : 누적 분포 함수
+- ppf : 누적 분포 함수의 역함수 (Quantile?)
+- sf  : 생존 함수
+- isf : 생존 함수의 역함수
+- rvs : 랜덤 표본 생성 함수
+
+
+## 3. 파이썬 정규 분포 확률밀도 함수
+
+\Tiny
+```{python, message=FALSE, collapse=TRUE, tidy=TRUE,tidy.opts=list(width.cutoff=100),eval=T}
+import scipy as sp
+import scipy.stats
+import numpy as np
+import matplotlib.pyplot as plt
+rv = sp.stats.norm()
+xx = np.linspace(-8,8,100)
+pdf = rv.pdf(xx)
+plt.figure(figsize=(3,2))
+plt.plot(xx, pdf)
+```
