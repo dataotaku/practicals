@@ -14,7 +14,7 @@
 # install.packages("readr")
 # install.packages("ggfortify")
 # 
-# install.packages("reticulate")
+install.packages("reticulate")
 
 library(reticulate)
 path_to_python <- install_python()
@@ -22,3 +22,6 @@ virtualenv_create("r-reticulate", python = path_to_python)
 
 virtualenv_install("r-reticulate", "scipy")
 virtualenv_install("r-reticulate", "seaborn")
+
+?dchisq
+?dnorm

@@ -14,23 +14,85 @@ header-includes:
   - \usepackage{kotex}
 ---
 
-```{r rsetup, echo=FALSE, message=FALSE, warning=FALSE}
+```{r setup, echo=FALSE, message=FALSE, warning=FALSE}
 library(knitr)
-opts_chunk$set(collapse=TRUE, fig.align='center', tidy=TRUE, tidy.opts=list(blank=TRUE, width.cutoff=40, strip.white=TRUE), warning=FALSE,message=FALSE,cache=TRUE)
+library(ggplot2)
+opts_chunk$set(collapse=TRUE, fig.align='center', tidy=TRUE, tidy.opts=list(blank=TRUE, width.cutoff=100, strip.white=TRUE), warning=FALSE,message=FALSE,cache=TRUE)
 # echo=TRUE, collapse=TRUE,
 # fig.height=2.2,fig.width=2.8, 
 # fig.cap="이미지 캡션 넣기", 
 # tidy.opts=list(width.cutoff=90),
 # eval=T
+my_theme1 = function() {
+  theme(axis.text.x = element_text(hjust=1, size=5),
+        axis.text.y = element_text(hjust=1, size=5),
+        axis.ticks.y = element_blank(),
+        axis.title.x = element_text(size=7),
+        axis.title.y = element_text(size=7),
+        legend.title = element_text(size=7),
+        legend.text = element_text(size=5),
+        plot.title = element_text(hjust=0.5, size=8))}
+my_theme2 = function() {
+  theme(axis.text.x = element_text(angle=90, hjust=1, size=5),
+        axis.text.y = element_text(hjust=1, size=5),
+        axis.title.x = element_text(size=7),
+        axis.title.y = element_text(size=7),
+        legend.title = element_text(size=7),
+        legend.text = element_text(size=5),
+        plot.title = element_text(hjust=0.5, size=8))}
+```
+# R 확률분포 활용
+
+## 1. R의 확률분포 함수
+R은 통계전문 소프트웨어 답게 상당히 직관적으로 확률분포를 사용할 수 있도록 지원한다.
+
+\scriptsize
+R에서는 확률분포를 나타내는 단어앞에 별도로 접두어를 붙인 형태의 함수를 별도로 제공한다.
+예를들어, dnorm()은 정규분포를 나타내는 norm앞에 접두어 $d$를 붙여서 확률밀도 함수를
+나타낸다. $p$가 붙으면 누적분포함수, $q$는 누적분포함수의 역함수로 quantile을 구해주며,
+$r$이 붙으면 해당확률분포하에서 추출한 랜덤샘플을 생성해준다. 각 확률분포의 이름과 함수명칭은 다음과 같다.
+
+- 균등분포(unif)    : dunif(), punif(), qunif(), runif()
+- 정규분포 (norm)   : dnorm(), pnorm(), qnorm(), rnorm()
+- t분포    (t)      : dt(),    pt(),    qt(),    rt()
+- F분포    (f)      : df(),    pf(),    qf(),    rf()
+- 카이제곱분포(chi) : dchisq(),pchisq(),qchisq(),rchisq()
+- 이항분포(binom)   : dbinom(),pbinom(),qbinom(),rbinom()
+- 기하분포(geom)    : dgeom(), pgeom(), qgeom(), rgeom()
+- 음이항분포(nbinom): dnbinom(), pnbinom(), qnbinom(), rnbinom()
+- 포아송분포(pois)  : dpois(), ppois(), qpois(), rpois()
+- 초기하분포(hyper) : dhyper(),phyper(),qhyper(), rhyper()
+
+## 2. R의 정규분포 PDF 시각화
+- 파란색 : 평균 0, 표준편차 1
+- 빨간색 : 평균 3, 표준편차 5
+
+\Tiny
+```{r, eval=T, fig.height=2.2, fig.width=2.8, echo=F}
+ggplot(data.frame(x=c(-8,8)), aes(x=x)) +
+  stat_function(fun=dnorm, args=list(mean=0, sd=1), colour="blue", size=0.5) +
+  stat_function(fun=dnorm, args=list(mean=3, sd=5),colour="red", size=0.5) +
+  labs(title="Normal Distribution PDF") + my_theme1()
 ```
 
-# 파이썬 확률분포 
+## 3. R의 정규분포 CDF 시각화
+- 파란색 : 평균 0, 표준편차 1
+- 빨간색 : 평균 0, 표준편차 3
+\Tiny
+```{r, eval=T, fig.height=2.2, fig.width=2.8, echo=F}
+ggplot(data.frame(x=c(-8,8)), aes(x=x)) +
+  stat_function(fun=pnorm, args=list(mean=0, sd=1), colour="blue", size=0.5) +
+  stat_function(fun=pnorm, args=list(mean=-3, sd=3),colour="red", size=0.5) +
+  labs(title="Normal Distribution CDF") + my_theme1()
+```
+
+# Python 확률분포 활용
 
 ## 1. 사이파이의 확률분포 클래스
 사이파이 패키지를 적절히 임포트한 후, 가장 먼저 해당 확률분포에 대한 확률분포 클래스 객체를 생성한 후에 메서드를 활용해야 함.
 
 \scriptsize
-```{python, message=FALSE, collapse=TRUE, tidy=TRUE,tidy.opts=list(width.cutoff=100),eval=T}
+```{python, eval=T}
 import scipy as sp
 import scipy.stats
 ```
@@ -50,9 +112,9 @@ import scipy.stats
 
 
 ## 2. 파이썬 확률분포객체가 가지는 공통 메서드
-입력하는 파라미터는 확률분포 객체의 종류와 활용하는 메서드에 따라 달라질 수 있음.
-
-가장 기본이 되는 파라미터는 loc(기대값)과 scale(평균)임.
+각 메서드별로 입력해야 하는 파라미터는 확률분포 객체의 종류와 활용하는 메서드에 따라 달라질 수 있으며, 적절한 파라미터를 입력하지 않으면 제대로 동작하지 않는다는 점에 유의하여야 함.
+\scriptsize
+가장 일반적으로 사용되는 기본적인 파라미터는 loc(기대값)과 scale(평균)임.
 
 - pmf : 확률 질량 함수 
 - pdf : 확률 밀도 함수
@@ -66,14 +128,18 @@ import scipy.stats
 ## 3. 파이썬 정규 분포 확률밀도 함수
 
 \Tiny
-```{python, message=FALSE, collapse=TRUE, tidy=TRUE,tidy.opts=list(width.cutoff=100),eval=T}
+```{python, eval=T}
 import scipy as sp
 import scipy.stats
 import numpy as np
 import matplotlib.pyplot as plt
-rv = sp.stats.norm()
+rv = sp.stats.norm() # 정규분포 클래스 객체 인스턴스 생성 및 변수에 할당
 xx = np.linspace(-8,8,100)
-pdf = rv.pdf(xx)
+pdf = rv.pdf(xx)     # 정규분포 클래스 인스턴스를 활용한 확률밀도함수 값 추출
 plt.figure(figsize=(3,2))
 plt.plot(xx, pdf)
 ```
+
+# 확률분포 관련 문제 풀이
+
+## 1. 초기하 분포
