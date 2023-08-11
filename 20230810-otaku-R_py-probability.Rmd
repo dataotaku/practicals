@@ -12,6 +12,7 @@ output:
   slidy_presentation: default
 header-includes:
   - \usepackage{kotex}
+urlcolor: blue
 ---
 
 ```{r setup, echo=FALSE, message=FALSE, warning=FALSE}
