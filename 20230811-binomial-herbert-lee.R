@@ -29,9 +29,9 @@
 ?dbinom
 # 3) The conjugate prior is a beta prior. Plot the density with dbeta.
 theta=seq(from=0,to=1,by=.01)
-?dbeta
+# ?dbeta
 plot(theta,dbeta(theta,1,1),type="l")
-plot(theta,dbeta(theta,4,2),type="l")
+plot(theta,dbeta(theta,5,1),type="l")
 plot(theta,dbeta(theta,8,4),type="l")
 
 # 4) Find probabilities using the pbeta function.
@@ -92,3 +92,24 @@ mean(theta1>theta2)
 # Note for other distributions:
 # dgamma,pgamma,qgamma,rgamma
 # dnorm,pnorm,qnorm,rnorm
+
+theta=seq(from=0,to=1,by=.01)
+plot(theta,dbeta(theta,5,1),type="l")
+mean(dbeta(theta,5,1))
+pbeta(.5,1,5)
+
+qbeta(.025,8,16)
+qbeta(.975,8, 16)
+
+pbeta(0.35, 20, 7)
+
+theta=seq(from=0,to=30,by=.01)
+# ?dgamma
+plot(theta,dgamma(theta,shape = 8, rate=1),type="l")
+lines(theta,dgamma(theta,shape = 67, rate=6))
+67/6
+qgamma(.05, 67,6)
+?pgamma
+
+4/13
+5/14
