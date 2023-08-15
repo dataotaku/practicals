@@ -1,0 +1,62 @@
+---
+title: "RMD2PDF 비머 프레젠테이션 템플릿"
+author: |
+  | 장운호
+  | unho.chang@gmail.com
+date: "`r Sys.Date()`"
+output:
+  beamer_presentation:
+    theme: "AnnArbor"
+    colortheme: "dolphin"
+    keep_tex: no
+  slidy_presentation: default
+urlcolor: blue
+header-includes:
+  - \usepackage{kotex}
+---
+
+```{r setup, echo=FALSE, message=FALSE, warning=FALSE}
+library(knitr)
+library(ggplot2)
+opts_chunk$set(collapse=TRUE, fig.align='center', tidy=TRUE, tidy.opts=list(blank=TRUE, width.cutoff=100, strip.white=TRUE), warning=FALSE,message=FALSE,cache=TRUE)
+# echo=TRUE, collapse=TRUE,
+# fig.height=2.2,fig.width=2.8, 
+# fig.cap="이미지 캡션 넣기", 
+# tidy.opts=list(width.cutoff=90),
+# eval=T
+my_theme1 = function() {
+  theme(axis.text.x = element_text(hjust=1, size=5),
+        axis.text.y = element_text(hjust=1, size=5),
+        axis.ticks.y = element_blank(),
+        axis.title.x = element_text(size=7),
+        axis.title.y = element_text(size=7),
+        legend.title = element_text(size=7),
+        legend.text = element_text(size=5),
+        plot.title = element_text(hjust=0.5, size=8))}
+my_theme2 = function() {
+  theme(axis.text.x = element_text(angle=90, hjust=1, size=5),
+        axis.text.y = element_text(hjust=1, size=5),
+        axis.title.x = element_text(size=7),
+        axis.title.y = element_text(size=7),
+        legend.title = element_text(size=7),
+        legend.text = element_text(size=5),
+        plot.title = element_text(hjust=0.5, size=8))}
+```
+
+## 문제개요
+Suppose we are giving two students a multiple-choice exam with 40 questions,
+where each question has four choices. We don't know how much the students
+have studied for this exam, but we think that they will do better than just
+guessing randomly.
+
+## 1. What are the parameters of interest?
+R은 통계전문 소프트웨어 답게 상당히 직관적으로 확률분포를 사용할 수 있도록 지원한다.
+
+\scriptsize
+[From. 코세라 강의 - 허버트 리 교수님, 베이지안 통계학 Lesson7](https://www.coursera.org/learn/bayesian-statistics/lecture/ZSJE5/data-analysis-example-in-r)
+
+\Tiny
+```{r, eval=T, fig.height=2.2, fig.width=2.8, echo=F}
+theta=seq(from=0,to=1,by=.01)
+plot(theta,dbeta(theta,1,1),type="l")
+```

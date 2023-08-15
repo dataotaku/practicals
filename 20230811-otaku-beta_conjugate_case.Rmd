@@ -1,5 +1,5 @@
 ---
-title: "R과 Python을 활용한 확률분포 학습"
+title: "Beta-Binomial 공액류 사전분포 활용 사례"
 author: |
   | 장운호
   | unho.chang@gmail.com
@@ -10,9 +10,9 @@ output:
     colortheme: "dolphin"
     keep_tex: no
   slidy_presentation: default
+urlcolor: blue
 header-includes:
   - \usepackage{kotex}
-urlcolor: blue
 ---
 
 ```{r setup, echo=FALSE, message=FALSE, warning=FALSE}
@@ -42,7 +42,124 @@ my_theme2 = function() {
         legend.text = element_text(size=5),
         plot.title = element_text(hjust=0.5, size=8))}
 ```
-# R 확률분포 활용
+
+# 이해를 돕기위한 연습문제(Toy Example) 풀이
+
+## 문제상황 개요
+두명의 학생이 40문제의 보기가 4개인 객관식 필기시험을 본다고 가정한다.
+우리는 그 두명의 학생이 시험공부를 얼마나 열심히 했는지는 모르지만,
+단지 그냥 완전히 찍은 것 보다는 더 높은 점수가 나올것이라고 기대한다.
+
+\scriptsize
+[From. 코세라 강의 - 허버트 리 교수님, 베이지안 통계학 Lesson7](https://www.coursera.org/learn/bayesian-statistics/lecture/ZSJE5/data-analysis-example-in-r)
+
+Suppose we are giving two students a multiple-choice exam with 40 questions,
+where each question has four choices. We don't know how much the students
+have studied for this exam, but we think that they will do better than just
+guessing randomly.
+
+## 1. What are the parameters of interest?
+문제의 분석에 필요한 파라미터는 학생1이 정답을 맞출 확률, theta_1과
+
+학생2가 정답을 맞출 확률, theta_2로 설정하는 것이 바람직하다.
+
+\scriptsize
+Parameters of interest are theta1=true probability the first student
+will answer a question correctly, and theta2=true probability the second
+student will answer a question correctly.
+
+[파라미터가 뭔지 궁금하시면, 이 링크를 참조해 주세요. 보험업을 사례로 데이터 분석의 주요한 개념들이 챕터별로 설명해 주시네요.](https://skb.skku.edu/actuarial/roadmap2.do)
+
+제 실력으로는 쉽게 설명드리기 어렵지만, 흔히 말하는 평균, 표준편차, 성공확률 등과 같이, 
+핵심이 되는 숫자를, 수단과 방법을 가리지 않고, 적절하게 구할 수 있다면, 전체적인 데이터를 요약하거나, 향후의 데이터의 움직임을 예상하는데 아주 큰 도움이 되는데, 이 때, 이러한 중요한 숫자를 파라미터라고 통칭합니다.  통계학이나 기계학습을 공부하지 않으셨다면, 전혀 모르는 단어가 아니라 오히려 일반인에게는 더 헷갈릴 수 있는 jargon(업계 전문 용어?, 물론 저한테만 그럴 수도 있습니다. 죄송.)입니다.
+
+## 2. What is our likelihood?
+파란색 : 정답확률 60%일 때, 40문제중 정답수별 분포 (평균 24)
+
+녹  색 : 정답확률 80%일 때, 40문제중 정답수별 분포 (평균 32)
+
+\scriptsize
+Likelihood is Binomial(40, theta), if we assume that each question is 
+independent and that the probability a student gets each question right 
+is the same for all questions for that student.
+
+```{r, eval=T, fig.height=2.2, fig.width=3.5, echo=F}
+# theta=seq(from=0,to=1,by=.01)
+# plot(theta,dbeta(theta,1,1),type="l")
+ggplot(data.frame(x=c(0,40)), aes(x=x)) +
+  stat_function(fun=dbinom, args=list(size=40, prob=0.6), fill="blue", size=0.5, 
+                geom='bar', alpha=0.5) +
+  stat_function(fun=dbinom, args=list(size=40, prob=0.8), fill="green", size=0.5,
+                geom='bar', alpha=0.5) +
+  labs(title="Binomial(40,theta 0.6/0.8) Distribution PDF") + my_theme1()
+```
+
+## 3. What prior should we use?
+파란색(shape1=1, shape2=1), 녹색(shape1=5, shape2=1),
+검정색(shape1=1, shape2=5), 빨강색(shape1=0.3, shape2=0.3)
+
+\scriptsize
+The conjugate prior (공액류 사전분포) is a beta prior.
+
+\Tiny
+```{r, eval=T, fig.height=2.2, fig.width=3.5, echo=F}
+# theta=seq(from=0,to=1,by=.01)
+# plot(theta,dbeta(theta,1,1),type="l")
+ggplot(data.frame(x=c(0,1)), aes(x=x)) +
+  stat_function(fun=dbeta, args=list(shape1=1, shape2=1), colour="blue", size=0.5) +
+  stat_function(fun=dbeta, args=list(shape1=5, shape2=1), colour="green", size=0.5) +
+  stat_function(fun=dbeta, args=list(shape1=1, shape2=5), colour="black", size=0.5) +
+  stat_function(fun=dbeta, args=list(shape1=0.3, shape2=0.3), colour="red", size=0.5) +
+  labs(title="Beta Distribution PDF under various parameters") + my_theme1()
+```
+
+## 4. Find probabilities using the pbeta function.
+파라미터로 나타나는 "전제조건"에 따라 다를 수 있음에 주의 필요
+
+\scriptsize
+What is the prior probability P(theta>.25)? P(theta>.5)? P(theta>.8)?
+
+\tiny
+```{r}
+1-pbeta(.25,5,1) # 무심하게 함수안에 있는 콤마로 구분되는 3개의 숫자에 주목 필요!
+1-pbeta(.5,5,1)
+1-pbeta(.8,5,1)
+
+1-pbeta(.25,1,1)
+1-pbeta(.5,1,1)
+1-pbeta(.8,1,1)
+
+1-pbeta(.25,8,4)
+1-pbeta(.5,8,4)
+1-pbeta(.8,8,4)
+```
+
+## 5. 첫번째 학생이 34개 맞았다면...
+여기서는 파라미터 shape1을 8, shape2를 4에서 부터 시작한다고 전제함.
+
+\scriptsize
+Suppose the first student gets 33 questions right. What is the posterior
+distribution for theta1? P(theta1>.25)? P(theta1>.5)? P(theta1>.8)?
+What is a 95% posterior credible interval for theta1?
+
+```{r}
+41/(41+11)  # posterior mean
+33/40       # MLE
+theta=seq(from=0,to=1,by=.01)
+# lines(theta,dbeta(theta,41,11))
+
+# plot posterior first to get the right scale on the y-axis
+plot(theta,dbeta(theta,41,11),type="l")
+lines(theta,dbeta(theta,8,4),lty=2)
+# plot likelihood
+lines(theta,dbinom(33,size=40,p=theta),lty=3)
+# plot scaled likelihood
+lines(theta,44*dbinom(33,size=40,p=theta),lty=3)
+```
+
+
+# R과 파이썬 확률분포 처리(handling) 함수 개요
+
 
 ## 1. R의 확률분포 함수
 R은 통계전문 소프트웨어 답게 상당히 직관적으로 확률분포를 사용할 수 있도록 지원한다.
@@ -67,6 +184,7 @@ $r$이 붙으면 해당확률분포하에서 추출한 랜덤샘플을 생성해
 ## 2. R의 정규분포 PDF 시각화
 - 파란색 : 평균 0, 표준편차 1
 - 빨간색 : 평균 3, 표준편차 5
+
 \Tiny
 ```{r, eval=T, fig.height=2.2, fig.width=2.8, echo=F}
 ggplot(data.frame(x=c(-8,8)), aes(x=x)) +
@@ -140,7 +258,3 @@ pdf = rv.pdf(xx)     # 정규분포 클래스 인스턴스를 활용한 확률�
 plt.figure(figsize=(3,2))
 plt.plot(xx, pdf)
 ```
-
-# 확률분포 관련 문제 풀이
-
-## 1. 초기하 분포
