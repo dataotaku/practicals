@@ -9,7 +9,6 @@ output:
     theme: "AnnArbor"
     colortheme: "dolphin"
     keep_tex: no
-  slidy_presentation: default
 urlcolor: blue
 header-includes:
   - \usepackage{kotex}
